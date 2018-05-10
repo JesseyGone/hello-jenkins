@@ -40,9 +40,9 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
-            <!--<scope>provided</scope>-->
+        <!--<groupId>org.springframework.boot</groupId>-->
+        <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
+        <!--<scope>provided</scope>-->
         <!--</dependency>-->
     </dependencies>
 
@@ -51,6 +51,46 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- com.spotify/docker-maven-plugin -->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <!-- 执行其他命令（package）时，自动构建镜像 -->
+                <executions>
+                    <execution>
+                        <id>build-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- 指定镜像名称 仓库名/镜像名:标签名 -->
+                    <imageName>registry.suneee.com/${project.artifactId}</imageName>
+                    <!-- 灵活地指定镜像tag -->
+                    <imageTags>
+                        <imageTag>${project.version}</imageTag>
+                        <!--<imageTag>latest</imageTag>-->
+                    </imageTags>
+                    <!-- the dockerDirectory element. If specified, the baseImage, maintainer, cmd and entryPoint elements will be ignored. -->
+                    <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                    <!-- overwrite -->
+                    <forceTags>true</forceTags>
+                    <!--  the resources element to copy additional files, such as the service's jar file. -->
+                    <resources>
+                        <resource>
+                            <targetPath>/</targetPath>
+                            <!-- 指定需要复制的根目录为p.b.d， maven内置变量-构建目录，缺省为target-->
+                            <directory>${project.build.directory}</directory>
+                            <!-- 指定需要复制的文件p.b.f，maven内置变量-产出物名称，缺省为${project.artifactId}-${project.version} -->
+                            <include>${project.build.finalName}.jar</include>
+                        </resource>
+                    </resources>
+                </configuration>
             </plugin>
         </plugins>
     </build>
